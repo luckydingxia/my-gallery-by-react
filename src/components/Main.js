@@ -32,6 +32,9 @@ function get30DegRandom(){
     return ((Math.random() > 0.5 ? '' : '-') + Math.ceil(Math.random() * 30));
 }
 
+/**
+ * ImgFigure 单个图片
+ */
 class ImgFigure extends React.Component {
     /*
     imgFigure的handle处理函数
@@ -83,6 +86,37 @@ class ImgFigure extends React.Component {
             </figure>
         );
     };
+}
+
+/**
+ * 控制组件
+ */
+class ControllerUnit extends React.Component{
+    handleClick(e){
+        if(this.props.arrange.isCenter){
+            this.props.inverse();
+        }else{
+            this.props.center();
+        }
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    render(){
+        var controllerUnitClassName = 'controller-unit';
+
+        //如果对应的是居中的图片，显示控制按钮的居中态
+        if(this.props.arrange.isCenter){
+            controllerUnitClassName += ' is-center';
+            if(this.props.arrange.isInverse){
+                controllerUnitClassName += ' is-inverse';
+            }
+        }
+
+        return (
+            <span className={controllerUnitClassName} onClick={this.handleClick.bind(this)}></span>
+        );
+    }
 }
 
 class AppComponent extends React.Component {
@@ -160,8 +194,6 @@ class AppComponent extends React.Component {
             var imgsArrangeArr = this.state.imgsArrangeArr;
 
             imgsArrangeArr[index].isInverse = !imgsArrangeArr[index].isInverse;
-            console.log(index);
-            console.log(imgsArrangeArr[index]);
             this.setState({
                 imgsArrangeArr: imgsArrangeArr
             });
@@ -196,7 +228,7 @@ class AppComponent extends React.Component {
 
             imgsArrangeTopArr = [],
 
-            topImgNum = Math.ceil(Math.random() * 2),
+            topImgNum = Math.floor(Math.random() * 2),  //取一个或者不取
             topImgSliceIndex = 0,
             imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex,1);
 
@@ -206,7 +238,6 @@ class AppComponent extends React.Component {
             rotate: 0,
             isCenter: true
         };
-
 
         //取出要布局上侧的图片的状态信息
         topImgSliceIndex =  Math.ceil(Math.random() * (imgsArrangeArr.length - topImgNum));
@@ -261,6 +292,7 @@ class AppComponent extends React.Component {
     render() {
         var controllerUnits = [],
             imgFigures = [];
+
         imageDatas.forEach(function(value, index){
             if(!this.state.imgsArrangeArr[index]){
                 this.state.imgsArrangeArr[index] = {
@@ -275,7 +307,9 @@ class AppComponent extends React.Component {
             }
             imgFigures.push(<ImgFigure data={value} ref={'imgFigure' + index}
                 arrange={this.state.imgsArrangeArr[index]}
-                inverse={this.inverse(index)} center={this.center(index)} />);
+                key={index} inverse={this.inverse(index)} center={this.center(index)} />);
+            controllerUnits.push(<ControllerUnit arrange={this.state.imgsArrangeArr[index]}
+                key={index} inverse={this.inverse(index)} center={this.center(index)}/>);
         }.bind(this));
 
         return (
